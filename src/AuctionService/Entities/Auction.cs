@@ -6,8 +6,8 @@ public class Auction
 {
     public required Guid Id { get; set; }
     public required decimal ReservePrice { get; set; }
-    public decimal CurrentHighBid { get; set; }
-    public int SoldAmount { get; set; }
+    public decimal? CurrentHighBid { get; set; }
+    public int SoldAmount { get; set; } = 0;
     [MaxLength(100)] public string? Seller { get; set; }
     [MaxLength(100)] public string? Winner { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
