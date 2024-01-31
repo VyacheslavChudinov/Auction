@@ -14,5 +14,5 @@ public class Auction
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public required DateTime AuctionEnd { get; set; }
     public required Status Status { get; set; }
-    public Item? Item { get; set; }
+    public required Item Item { get; set; }
 }
