@@ -1,5 +1,6 @@
 using AuctionService.Data;
 using AuctionService.DTOs;
+using AuctionService.Entities;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,8 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
         return mapper.Map<List<AuctionDto>>(auctions);
     }
 
-    [HttpGet("{id}")]
+
+    [HttpGet("{id:guid}", Name = "GetAuctionById")]
     public async Task<ActionResult<AuctionDto>> GetAuctionById(Guid id)
     {
         var auction = await context.Auctions
@@ -36,5 +38,24 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
         }
 
         return mapper.Map<AuctionDto>(auction);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDTO createAuctionDto)
+    {
+        var auction = mapper.Map<Auction>(createAuctionDto);
+        
+        // TODO: replace to current user when identity is implemented
+        auction.Seller = "User";
+        
+        await context.Auctions.AddAsync(auction);
+
+        var hasChanges = await context.SaveChangesAsync() > 0;
+        if (!hasChanges)
+        {
+            return BadRequest(new ProblemDetails { Title = "Problem creating new auction" });
+        }
+
+        return CreatedAtAction(nameof(GetAuctionById), new { auction.Id }, mapper.Map<AuctionDto>(auction));
     }
 }
