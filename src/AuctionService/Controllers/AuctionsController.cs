@@ -77,4 +77,19 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
 
         return Ok();
     }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeleteAuction(Guid id)
+    {
+        var auction = await context.Auctions.FindAsync(id);
+        if (auction is null) return NotFound();
+
+        // TODO: check if current user is the seller
+        
+        context.Auctions.Remove(auction);
+        var hasChanges = await context.SaveChangesAsync() > 0;
+        if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem deleting auction" });
+
+        return Ok();
+    }
 }
