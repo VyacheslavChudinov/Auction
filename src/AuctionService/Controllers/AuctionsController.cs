@@ -44,10 +44,10 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
     public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDTO createAuctionDto)
     {
         var auction = mapper.Map<Auction>(createAuctionDto);
-        
+
         // TODO: replace to current user when identity is implemented
         auction.Seller = "User";
-        
+
         await context.Auctions.AddAsync(auction);
 
         var hasChanges = await context.SaveChangesAsync() > 0;
@@ -57,5 +57,24 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
         }
 
         return CreatedAtAction(nameof(GetAuctionById), new { auction.Id }, mapper.Map<AuctionDto>(auction));
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult> UpdateAuction(Guid id, UpdateAuctionDTO updateAuctionDto)
+    {
+        var auction = await context.Auctions
+            .Include(a => a.Item)
+            .FirstOrDefaultAsync(a => a.Id == id);
+        if (auction is null) return NotFound();
+
+        // TODO: check if current user is the seller
+
+        mapper.Map(updateAuctionDto, auction);
+        context.Auctions.Update(auction);
+
+        var hasChanges = await context.SaveChangesAsync() > 0;
+        if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem updating auction" });
+
+        return Ok();
     }
 }
