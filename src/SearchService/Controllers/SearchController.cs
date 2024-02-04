@@ -9,9 +9,9 @@ namespace SearchService.Controllers;
 public class SearchController : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<Item>>> SearchItems(string? searchTerm)
+    public async Task<ActionResult<List<Item>>> SearchItems(string? searchTerm, int pageNumber = 1, int pageSize = 4)
     {
-        var query = DB.Find<Item>();
+        var query = DB.PagedSearch<Item>();
 
         if (!string.IsNullOrEmpty(searchTerm))
         {
@@ -20,8 +20,17 @@ public class SearchController : ControllerBase
                 .SortByTextScore();
         }
 
-        return await query
+        var queryResult = await query
             .Sort(s => s.Ascending(i => i.Name))
+            .PageNumber(pageNumber)
+            .PageSize(pageSize)
             .ExecuteAsync();
+
+        return Ok(new
+        {
+            results = queryResult.Results,
+            pageCount = queryResult.PageCount,
+            totalCount = queryResult.TotalCount
+        });
     }
 }
