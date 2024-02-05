@@ -2,6 +2,7 @@ using AuctionService.Data;
 using AuctionService.DTOs;
 using AuctionService.Entities;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,15 +13,29 @@ namespace AuctionService.Controllers;
 public class AuctionsController(AuctionDbContext context, IMapper mapper) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<AuctionDto>>> GetAllAuctions()
+    public async Task<ActionResult<List<AuctionDto>>> GetAllAuctions(string? date)
     {
-        var auctions = await context.Auctions
-            .AsNoTracking()
-            .Include(a => a.Item)
+        var query = context.Auctions
             .OrderBy(a => a.Item.Name)
-            .ToListAsync();
+            .AsQueryable();
 
-        return mapper.Map<List<AuctionDto>>(auctions);
+        if (!string.IsNullOrEmpty(date))
+        {
+            try
+            {
+                var parsedDate = DateTime.Parse(date).ToUniversalTime();
+                query = query.Where(i => i.UpdatedAt.CompareTo(parsedDate) > 0);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ProblemDetails { Title = e.Message });
+            }
+        }
+
+        return await query
+            .AsNoTracking()
+            .ProjectTo<AuctionDto>(mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
 
@@ -85,7 +100,7 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
         if (auction is null) return NotFound();
 
         // TODO: check if current user is the seller
-        
+
         context.Auctions.Remove(auction);
         var hasChanges = await context.SaveChangesAsync() > 0;
         if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem deleting auction" });
