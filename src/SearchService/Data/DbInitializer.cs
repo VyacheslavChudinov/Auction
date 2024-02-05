@@ -21,7 +21,7 @@ public static class DbInitializer
         var httpClient = scope.ServiceProvider.GetRequiredService<AuctionServiceHttpClient>();
         var items = await httpClient.GetItemsForSearchDb();
 
-        Console.Write($"${items.Count} items returned from auction service.");
+        Console.Write($"{items.Count} items returned from auction service.");
 
         if (items.Count > 0)
         {
