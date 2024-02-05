@@ -13,16 +13,23 @@ var app = builder.Build();
 
 app.UseAuthorization();
 app.MapControllers();
-try
-{
-    await DbInitializer.InitDb(app);
-}
-catch (Exception e)
-{
-    Console.WriteLine(e);
-}
 
+app.Lifetime.ApplicationStarted.Register(TryInitDb);
 app.Run();
+
+return;
+
+async void TryInitDb()
+{
+    try
+    {
+        await DbInitializer.InitDb(app);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e);
+    }
+}
 
 static IAsyncPolicy<HttpResponseMessage> GetPolicy() => HttpPolicyExtensions.HandleTransientHttpError()
     .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
