@@ -1,3 +1,5 @@
+using Polly;
+using Polly.Extensions.Http;
 using SearchService.Data;
 using SearchService.Services;
 
@@ -5,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddHttpClient<AuctionServiceHttpClient>();
+builder.Services.AddHttpClient<AuctionServiceHttpClient>().AddPolicyHandler(GetPolicy());
 
 var app = builder.Build();
 
@@ -21,3 +23,6 @@ catch (Exception e)
 }
 
 app.Run();
+
+static IAsyncPolicy<HttpResponseMessage> GetPolicy() => HttpPolicyExtensions.HandleTransientHttpError()
+    .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
