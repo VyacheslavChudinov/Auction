@@ -14,16 +14,13 @@ public class SearchController : ControllerBase
     {
         var query = DB.PagedSearch<Item, Item>();
 
-        if (!string.IsNullOrEmpty(searchParams.SearchTerm))
-        {
-            query.Match(Search.Full, searchParams.SearchTerm);
-        }
+        if (!string.IsNullOrEmpty(searchParams.SearchTerm)) query.Match(Search.Full, searchParams.SearchTerm);
 
         query = searchParams.OrderBy?.ToLower() switch
         {
             "name" => query.Sort(s => s.Ascending(i => i.Name)),
             "new" => query.Sort(s => s.Ascending(i => i.CreatedAt)),
-            _ => query.Sort(s => s.Ascending(i => i.AuctionEnd)),
+            _ => query.Sort(s => s.Ascending(i => i.AuctionEnd))
         };
 
         query = searchParams.FilterBy?.ToLower() switch
@@ -33,15 +30,9 @@ public class SearchController : ControllerBase
             _ => query.Match(i => i.AuctionEnd > DateTime.UtcNow)
         };
 
-        if (!string.IsNullOrEmpty(searchParams.Seller))
-        {
-            query.Match(i => i.Seller == searchParams.Seller);
-        }
+        if (!string.IsNullOrEmpty(searchParams.Seller)) query.Match(i => i.Seller == searchParams.Seller);
 
-        if (!string.IsNullOrEmpty(searchParams.Winner))
-        {
-            query.Match(i => i.Seller == searchParams.Winner);
-        }
+        if (!string.IsNullOrEmpty(searchParams.Winner)) query.Match(i => i.Seller == searchParams.Winner);
 
         var queryResult = await query
             .PageNumber(searchParams.PageNumber)

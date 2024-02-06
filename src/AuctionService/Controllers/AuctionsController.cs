@@ -20,7 +20,6 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(date))
-        {
             try
             {
                 var parsedDate = DateTime.Parse(date).ToUniversalTime();
@@ -30,7 +29,6 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
             {
                 return BadRequest(new ProblemDetails { Title = e.Message });
             }
-        }
 
         return await query
             .AsNoTracking()
@@ -47,10 +45,7 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
             .Include(a => a.Item)
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (auction is null)
-        {
-            return NotFound();
-        }
+        if (auction is null) return NotFound();
 
         return mapper.Map<AuctionDto>(auction);
     }
@@ -66,10 +61,7 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
         await context.Auctions.AddAsync(auction);
 
         var hasChanges = await context.SaveChangesAsync() > 0;
-        if (!hasChanges)
-        {
-            return BadRequest(new ProblemDetails { Title = "Problem creating new auction" });
-        }
+        if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem creating new auction" });
 
         return CreatedAtAction(nameof(GetAuctionById), new { auction.Id }, mapper.Map<AuctionDto>(auction));
     }
