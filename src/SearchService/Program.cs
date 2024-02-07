@@ -1,3 +1,4 @@
+using MassTransit;
 using Polly;
 using Polly.Extensions.Http;
 using SearchService.Data;
@@ -8,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddHttpClient<AuctionServiceHttpClient>().AddPolicyHandler(GetPolicy());
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, config) => { config.ConfigureEndpoints(context); });
+});
 
 var app = builder.Build();
 
