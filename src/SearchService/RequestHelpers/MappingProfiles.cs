@@ -1,5 +1,5 @@
 using AutoMapper;
-using contracts;
+using Contracts;
 using SearchService.Models;
 
 namespace SearchService.RequestHelpers;

@@ -1,5 +1,5 @@
 using AutoMapper;
-using contracts;
+using Contracts;
 using MassTransit;
 using MongoDB.Entities;
 using SearchService.Models;

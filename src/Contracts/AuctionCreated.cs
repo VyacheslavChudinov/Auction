@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace contracts;
+namespace Contracts;
 
 public class AuctionCreated
 {
