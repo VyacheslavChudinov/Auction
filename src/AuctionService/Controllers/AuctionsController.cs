@@ -51,7 +51,7 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
     }
 
     [HttpPost]
-    public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDTO createAuctionDto)
+    public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto createAuctionDto)
     {
         var auction = mapper.Map<Auction>(createAuctionDto);
 
@@ -67,7 +67,7 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> UpdateAuction(Guid id, UpdateAuctionDTO updateAuctionDto)
+    public async Task<ActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
     {
         var auction = await context.Auctions
             .Include(a => a.Item)

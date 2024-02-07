@@ -12,12 +12,12 @@ public class MappingProfiles : Profile
             .IncludeMembers(x => x.Item);
         CreateMap<Item, AuctionDto>();
 
-        CreateMap<CreateAuctionDTO, Auction>()
+        CreateMap<CreateAuctionDto, Auction>()
             .ForMember(d => d.Item, o => o.MapFrom(s => s));
-        CreateMap<CreateAuctionDTO, Item>();
+        CreateMap<CreateAuctionDto, Item>();
 
-        CreateMap<UpdateAuctionDTO, Auction>()
+        CreateMap<UpdateAuctionDto, Auction>()
             .ForMember(d => d.Item, o => o.MapFrom(s => s));
-        CreateMap<UpdateAuctionDTO, Item>();
+        CreateMap<UpdateAuctionDto, Item>();
     }
 }

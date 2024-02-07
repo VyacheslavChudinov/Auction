@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AuctionService.DTOs;
 
-public class UpdateAuctionDTO
+public class UpdateAuctionDto
 {
     [MaxLength(100)] public required string Name { get; set; }
     [MaxLength(10000)] public required string Description { get; set; }
