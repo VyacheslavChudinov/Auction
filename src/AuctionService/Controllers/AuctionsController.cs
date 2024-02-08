@@ -63,11 +63,11 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
 
         await context.Auctions.AddAsync(auction);
 
-        var hasChanges = await context.SaveChangesAsync() > 0;
-        if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem creating new auction" });
-
         var createdAuction = mapper.Map<AuctionDto>(auction);
         await publishEndpoint.Publish(mapper.Map<AuctionCreated>(createdAuction));
+
+        var hasChanges = await context.SaveChangesAsync() > 0;
+        if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem creating new auction" });
 
         return CreatedAtAction(nameof(GetAuctionById), new { auction.Id }, createdAuction);
     }
