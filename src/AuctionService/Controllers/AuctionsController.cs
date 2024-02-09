@@ -85,6 +85,9 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
         mapper.Map(updateAuctionDto, auction);
         context.Auctions.Update(auction);
 
+        var updatedAuction = mapper.Map<AuctionDto>(auction);
+        await publishEndpoint.Publish<AuctionUpdated>(updatedAuction);
+
         var hasChanges = await context.SaveChangesAsync() > 0;
         if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem updating auction" });
 
@@ -100,6 +103,10 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
         // TODO: check if current user is the seller
 
         context.Auctions.Remove(auction);
+
+        var deletedAuction = mapper.Map<AuctionDto>(auction);
+        await publishEndpoint.Publish<AuctionDeleted>(deletedAuction);
+
         var hasChanges = await context.SaveChangesAsync() > 0;
         if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem deleting auction" });
 
