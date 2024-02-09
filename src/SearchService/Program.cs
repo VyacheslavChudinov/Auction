@@ -17,7 +17,7 @@ builder.Services.AddMassTransit(x =>
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
     x.UsingRabbitMq((context, config) =>
     {
-        config.ReceiveEndpoint("search-auction-created",e =>
+        config.ReceiveEndpoint("search-auction-created", e =>
         {
             e.UseMessageRetry(c => c.Interval(5, 5));
             e.ConfigureConsumer<AuctionCreatedConsumer>(context);
