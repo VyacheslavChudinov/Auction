@@ -63,8 +63,8 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
 
         await context.Auctions.AddAsync(auction);
 
-        var createdAuction = mapper.Map<AuctionDto>(auction);
-        await publishEndpoint.Publish(mapper.Map<AuctionCreated>(createdAuction));
+        var createdAuction = mapper.Map<AuctionCreated>(auction);
+        await publishEndpoint.Publish(createdAuction);
 
         var hasChanges = await context.SaveChangesAsync() > 0;
         if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem creating new auction" });
@@ -85,8 +85,8 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
         mapper.Map(updateAuctionDto, auction);
         context.Auctions.Update(auction);
 
-        var updatedAuction = mapper.Map<AuctionDto>(auction);
-        await publishEndpoint.Publish<AuctionUpdated>(updatedAuction);
+        var updatedAuction = mapper.Map<AuctionUpdated>(auction);
+        await publishEndpoint.Publish(updatedAuction);
 
         var hasChanges = await context.SaveChangesAsync() > 0;
         if (!hasChanges) return BadRequest(new ProblemDetails { Title = "Problem updating auction" });
