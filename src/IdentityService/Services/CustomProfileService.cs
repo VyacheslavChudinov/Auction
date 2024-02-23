@@ -12,12 +12,18 @@ namespace IdentityService.Services
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             var user = await userManager.GetUserAsync(context.Subject);
+            if (user is null || user.UserName is null) { return; }
+
             var existingClaims = await userManager.GetClaimsAsync(user);
+            if (existingClaims is null) { return; }
 
             var claims = new List<Claim> { new Claim("username", user.UserName) };
-
             context.IssuedClaims.AddRange(claims);
-            context.IssuedClaims.Add(existingClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name));
+
+            var nameClaim = existingClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name);
+            if (nameClaim is null) { return; }
+
+            context.IssuedClaims.Add(nameClaim);
         }
 
         public Task IsActiveAsync(IsActiveContext context)
