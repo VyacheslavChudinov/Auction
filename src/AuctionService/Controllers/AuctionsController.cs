@@ -5,6 +5,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Contracts;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,13 +54,14 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
         return mapper.Map<AuctionDto>(auction);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto createAuctionDto)
     {
         var auction = mapper.Map<Auction>(createAuctionDto);
+        if (User?.Identity?.Name is null) { return Forbid(); }
 
-        // TODO: replace to current user when identity is implemented
-        auction.Seller = "User";
+        auction.Seller = User.Identity.Name;
 
         await context.Auctions.AddAsync(auction);
 
@@ -72,6 +74,7 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
         return CreatedAtAction(nameof(GetAuctionById), new { auction.Id }, createdAuction);
     }
 
+    [Authorize]
     [HttpPut("{id:guid}")]
     public async Task<ActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
     {
@@ -80,7 +83,7 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
             .FirstOrDefaultAsync(a => a.Id == id);
         if (auction is null) return NotFound();
 
-        // TODO: check if current user is the seller
+        if (User?.Identity?.Name is null || auction.Seller != User.Identity.Name) { return Forbid(); };
 
         mapper.Map(updateAuctionDto, auction);
         context.Auctions.Update(auction);
@@ -94,13 +97,14 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
         return Ok();
     }
 
+    [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeleteAuction(Guid id)
     {
         var auction = await context.Auctions.FindAsync(id);
         if (auction is null) return NotFound();
 
-        // TODO: check if current user is the seller
+        if (User?.Identity?.Name is null || auction.Seller != User.Identity.Name) { return Forbid(); };
 
         context.Auctions.Remove(auction);
 
