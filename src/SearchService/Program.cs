@@ -51,5 +51,5 @@ async void TryInitDb()
 static IAsyncPolicy<HttpResponseMessage> GetPolicy()
 {
     return HttpPolicyExtensions.HandleTransientHttpError()
-        .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
+        .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(10));
 }
